@@ -1,0 +1,16 @@
+# ==========================================================================
+# Copyright (c) 2026 HydraCodeLabs
+# Owner: HydraCodeLabs
+# Project: HydraDesk
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# Last updated: 2026-06-27T01:32:17Z
+# ==========================================================================
+
+[workspace]
+members = [
+    "cli",
+]
+resolver = "2"
+
+# agent/ is a separate workspace (Linux-only, not built on Windows)
+# To build agent: cd agent && cargo build --release

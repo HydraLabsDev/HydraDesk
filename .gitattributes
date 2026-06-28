@@ -1,0 +1,14 @@
+# ==========================================================================
+# Copyright (c) 2026 HydraCodeLabs
+# Owner: HydraCodeLabs
+# Project: HydraDesk
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# Last updated: 2026-06-27T01:32:17Z
+# ==========================================================================
+
+# Normalise line endings: keep LF in the repo and on checkout everywhere so the
+# shell scripts (install.sh, scripts/*) always run on Linux without CRLF issues.
+* text=auto eol=lf
+
+# Binary assets — never touch line endings.
+*.png binary

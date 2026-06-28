@@ -1,0 +1,27 @@
+# ==========================================================================
+# Copyright (c) 2026 HydraCodeLabs
+# Owner: HydraCodeLabs
+# Project: HydraDesk
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# Last updated: 2026-06-27T01:32:17Z
+# ==========================================================================
+
+[package]
+name = "hydradesk"
+version = "1.0.0"
+edition = "2021"
+authors = ["HydraCodeLabs"]
+description = "Linux RDP setup — physical desktop access via Windows mstsc"
+license = "PolyForm-Noncommercial-1.0.0"
+
+[[bin]]
+name = "hydradesk"
+path = "src/main.rs"
+
+[dependencies]
+clap   = { version = "4", features = ["derive", "color"] }
+anyhow = "1"
+colored = "2"
+rand   = "0.8"
+libc   = "0.2"
+rpassword = "7"

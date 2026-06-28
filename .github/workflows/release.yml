@@ -1,0 +1,72 @@
+name: release
+
+# Tag a release to trigger this:  git tag -a vX.Y.Z -m vX.Y.Z && git push --follow-tags
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: build ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Static musl builds so one binary runs on any Linux distro (no glibc
+        # version coupling). Names must match install.sh's detect_target().
+        target:
+          - x86_64-unknown-linux-musl
+          - aarch64-unknown-linux-musl
+          - armv7-unknown-linux-musleabihf
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+      - name: Build
+        run: cross build --release --target ${{ matrix.target }} --manifest-path cli/Cargo.toml
+      - name: Stage artifact
+        run: |
+          out="hydradesk-${{ matrix.target }}"
+          # This is a Cargo workspace, so artifacts land in the workspace-root
+          # target/ — fall back to cli/target/ just in case.
+          bin="target/${{ matrix.target }}/release/hydradesk"
+          [ -f "$bin" ] || bin="cli/target/${{ matrix.target }}/release/hydradesk"
+          cp "$bin" "$out"
+          chmod +x "$out"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: hydradesk-${{ matrix.target }}
+          if-no-files-found: error
+
+  release:
+    name: publish release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Checksums
+        run: |
+          cd dist
+          sha256sum hydradesk-* > SHA256SUMS
+          cat SHA256SUMS
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/hydradesk-*
+            dist/SHA256SUMS

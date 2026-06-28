@@ -1,0 +1,40 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-test:
+    name: build + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --manifest-path cli/Cargo.toml --all-targets
+      - name: Test
+        run: cargo test --manifest-path cli/Cargo.toml
+
+  lint:
+    name: fmt + clippy (informational)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      # These are advisory for now. Once the tree is fmt/clippy clean, drop the
+      # `continue-on-error` lines to make them required (see RELEASING.md).
+      - name: rustfmt
+        run: cargo fmt --manifest-path cli/Cargo.toml --check
+        continue-on-error: true
+      - name: clippy
+        run: cargo clippy --manifest-path cli/Cargo.toml --all-targets
+        continue-on-error: true
